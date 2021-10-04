@@ -12,10 +12,10 @@ jobs:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
       - image: postgres:13
-        enviroment:
-          POSTGRES_PASSWORD:'gcs'
-          POSTGRES_USER:'gcs'
-          POSTGRES_DB:'gcs'
+        environment:
+          POSTGRES_PASSWORD: 'gcs'
+          POSTGRES_USER: 'gcs'
+          POSTGRES_DB: 'gcs'
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
