@@ -55,4 +55,7 @@ jobs:
       - run: sbt "project gcsAppIT" test
       
       # empaquetar!
-      - run: sbt rpm:packageBin     
+      - run: |
+      curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+      sudo yum install sbt
+      sbt rpm:packageBin     
