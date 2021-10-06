@@ -48,21 +48,25 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies--{{ checksum "build.sbt" }}
-      # empaquetar!
-      #- run: sbt rpm:packageBin   
+       
       ### run tests!
       #- run: cat /dev/null | sbt test:test      
+      
+      ### run test integracion!     
+      #- run: sbt "project gcsAppIT" test
+      
+      # empaquetar!
+      - run: sbt rpm:packageBin 
+      
+      # copiar al destino!
       - run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
            - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"  
-      #- run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/home/azureuser
+      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/home/azureuser
       - run: ssh azureuser@52.234.228.241 'sudo systemctl restart gcs-app'
-      - run: ssh azureuser@52.234.228.241  'echo "Skipped";'
-          
-      ### run test integracion!     
-      #- run: sbt "project gcsAppIT" test
-    
+      - run: ssh azureuser@52.234.228.241 'echo "Skipped";'
+       
        
       #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
       #- run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
