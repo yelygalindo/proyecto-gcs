@@ -11,17 +11,18 @@ jobs:
     docker:
       # specify the version you desire here
       - image: rasrules/centos7-pg11-scala:latest
-      #- image: centos/postgresql-10-centos7
-      #  environment:
-      #    POSTGRESQL_PASSWORD: 'gcs'
-      #    POSTGRESQL_USER: 'gcs'
-      #    POSTGRESQL_DATABASE: 'gcs'
-      #    PGDATA: /var/lib/postgresql/data
+      - image: centos/postgresql-10-centos7
+        environment:
+          POSTGRESQL_PASSWORD: 'gcs'
+          POSTGRESQL_USER: 'gcs'
+          POSTGRESQL_DATABASE: 'gcs'
+          PGDATA: /var/lib/postgresql/data
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
+    resource_class: xlarge      
 
     working_directory: ~/repo
 
@@ -50,10 +51,10 @@ jobs:
           key: v1-dependencies--{{ checksum "build.sbt" }}
        
       ### run tests!
-      #- run: cat /dev/null | sbt test:test      
+      - run: cat /dev/null | sbt test:test      
       
       ### run test integracion!     
-      #- run: sbt "project gcsAppIT" test
+      - run: sbt "project gcsAppIT" test
       
       # empaquetar!
       - run: sbt rpm:packageBin 
@@ -67,16 +68,12 @@ jobs:
       #- run: ssh azureuser@52.234.228.241 'sudo systemctl restart gcs-app'
       #- run: ssh azureuser@52.234.228.241 'echo "Skipped";'
        
-       
-      #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
-      #- run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
-      #- run: chmod 400 /tmp/rassvr01_rsa      
+      # deploy       
       - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-      #- run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
-      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
-      - run: ssh raillon@${WEBSERVER} 'sudo ./update.sh'
+      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+      - run: ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
      
 
