@@ -60,5 +60,6 @@ jobs:
       # empaquetar!
       - run: sbt rpm:packageBin     
       - run: echo "$WEBSERVER"
+      - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       - run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
 
