@@ -52,7 +52,8 @@ jobs:
       
       # run test integracion!
       - run: export PGDATA=/var/lib/postgresql/data
-      - run: sudo /usr/pgsql-11/bin/postgresql-11-setup initdb --pgdata=/var/lib/postgresql/data
+      - run: cat "[Service]\nEnvironment=PGDATA=/var/lib/postgresql/data" > /etc/systemd/system/postgresql-11.service.d/override.conf
+      - run: sudo /usr/pgsql-11/bin/postgresql-11-setup initdb
       - run: sudo systemctl start postgresql-11
       - run: sbt "project gcsAppIT" test
       
