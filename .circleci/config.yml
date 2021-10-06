@@ -51,6 +51,8 @@ jobs:
       - run: cat /dev/null | sbt test:test      
       
       # run test integracion!
+      - run: sudo /usr/pgsql-11/bin/postgresql-11-setup initdb
+      - run: sudo systemctl start postgresql-11
       - run: sbt "project gcsAppIT" test
       
       # empaquetar!
