@@ -60,9 +60,11 @@ jobs:
       # empaquetar!
       #- run: sbt rpm:packageBin     
       #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
-      #run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
+      #- run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
       #- run: chmod 400 /tmp/rassvr01_rsa      
       #- run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       #- run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
-      - run: scp  /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/tmp
+      - run: ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
+      - run: ssh -i /Users/me/.ssh/ServerWeb azureuser@52.234.228.241
+      #- run: scp  /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/tmp
 
