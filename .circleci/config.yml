@@ -59,19 +59,24 @@ jobs:
       - run: sbt rpm:packageBin 
       
       # copiar al destino!
-      - run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
-      - add_ssh_keys:
-         fingerprints:
-           - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"  
-      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/home/azureuser
-      - run: ssh azureuser@52.234.228.241 'sudo systemctl restart gcs-app'
-      - run: ssh azureuser@52.234.228.241 'echo "Skipped";'
+      #- run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
+      #- add_ssh_keys:
+      #   fingerprints:
+      #     - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"  
+      #- run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/home/azureuser
+      #- run: ssh azureuser@52.234.228.241 'sudo systemctl restart gcs-app'
+      #- run: ssh azureuser@52.234.228.241 'echo "Skipped";'
        
        
       #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
       #- run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
       #- run: chmod 400 /tmp/rassvr01_rsa      
-      #- run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+      - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+      - add_ssh_keys:
+         fingerprints:
+           - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
       #- run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
+      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
+      - run: ssh raillon@${WEBSERVER} 'sudo ./update.sh'
      
 
