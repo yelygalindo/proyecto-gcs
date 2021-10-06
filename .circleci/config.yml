@@ -52,7 +52,7 @@ jobs:
       
       # run test integracion!
       - run: export PGDATA=/var/lib/postgresql/data
-      - run: sudo /usr/pgsql-11/bin/postgresql-11-setup initdb
+      - run: sudo /usr/pgsql-11/bin/postgresql-11-setup initdb --pgdata=/var/lib/postgresql/data
       - run: sudo systemctl start postgresql-11
       - run: sbt "project gcsAppIT" test
       
