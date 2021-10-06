@@ -58,7 +58,7 @@ jobs:
       - add_ssh_keys:
          fingerprints:
            - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"        
-      -run:
+      - run:
           name: test
           command: ssh azureuser@52.234.228.241  'echo "Skipped";'
           
