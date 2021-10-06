@@ -55,8 +55,8 @@ jobs:
       ### run test integracion!     
       #- run: sbt "project gcsAppIT" test
       - add_ssh_keys:
-        fingerprints:
-          - "SW:5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"
+          fingerprints:
+          - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"
       # empaquetar!
       #- run: sbt rpm:packageBin     
       #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
@@ -64,5 +64,5 @@ jobs:
       #- run: chmod 400 /tmp/rassvr01_rsa      
       #- run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       #- run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
-      - run: scp -i SW /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@${WEBSERVER}:/tmp
+      - run: scp -i /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/tmp
 
