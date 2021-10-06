@@ -48,7 +48,8 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies--{{ checksum "build.sbt" }}
-
+      # empaquetar!
+      - run: sbt rpm:packageBin   
       ### run tests!
       #- run: cat /dev/null | sbt test:test      
       - run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
@@ -62,8 +63,7 @@ jobs:
       ### run test integracion!     
       #- run: sbt "project gcsAppIT" test
     
-      # empaquetar!
-      #- run: sbt rpm:packageBin     
+       
       #- run: curl -L ${MY_PK_URL} > /tmp/rassvr01_rsa
       #- run: curl -L ${WEBSERVER} > /tmp/rassvr01_rsa
       #- run: chmod 400 /tmp/rassvr01_rsa      
