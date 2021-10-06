@@ -11,10 +11,12 @@ jobs:
     docker:
       # specify the version you desire here
       - image: rasrules/centos7-pg11-scala:latest
+      - image: centos/postgresql
         environment:
           POSTGRES_PASSWORD: 'gcs'
           POSTGRES_USER: 'gcs'
           POSTGRES_DB: 'gcs'
+          PGDATA: /var/lib/postgresql/data
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -51,8 +53,8 @@ jobs:
       - run: cat /dev/null | sbt test:test      
       
       # run test integracion!     
-      - run: sudo systemctl start docker
-      - run: sudo docker run -itd -v /data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
+      #- run: sudo systemctl start docker
+      #- run: sudo docker run -itd -v /data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=gcs -e POSTGRES_USER=gcs -e POSTGRES_DB=gcs -p 127.0.0.1:5432:5432  postgres:9.5
       - run: sbt "project gcsAppIT" test
       
       # empaquetar!
