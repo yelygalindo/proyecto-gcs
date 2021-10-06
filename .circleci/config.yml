@@ -11,7 +11,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: rasrules/centos7-pg11-scala:latest
-      - image: centos/postgresql
+      - image: centos/postgresql-10-centos7
         environment:
           POSTGRES_PASSWORD: 'gcs'
           POSTGRES_USER: 'gcs'
