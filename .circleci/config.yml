@@ -64,5 +64,5 @@ jobs:
       #- run: chmod 400 /tmp/rassvr01_rsa      
       #- run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       #- run: scp -o IdentityFile=/tmp/rassvr01_rsa /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm raillon@${WEBSERVER}:/tmp
-      - run: scp -i ServerWeb /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/tmp
+      - run: scp -i $ServerWeb /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm azureuser@52.234.228.241:/tmp
 
