@@ -51,16 +51,11 @@ jobs:
 
       ### run tests!
       #- run: cat /dev/null | sbt test:test      
-      - run:
-        name: Conectando
-        comand: |
-          ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
+      - run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
            - "5f:4b:6c:19:42:ea:f8:70:23:7f:18:f5:bc:d6:04:19"        
-      - run:
-          name: test
-          command: ssh azureuser@52.234.228.241  'echo "Skipped";'
+      - run: ssh azureuser@52.234.228.241  'echo "Skipped";'
           
       ### run test integracion!     
       #- run: sbt "project gcsAppIT" test
