@@ -10,8 +10,7 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-      - image: postgres:13
+      - image: rasrules/centos7-pg11-scala:latest
         environment:
           POSTGRES_PASSWORD: 'gcs'
           POSTGRES_USER: 'gcs'
@@ -55,6 +54,4 @@ jobs:
       - run: sbt "project gcsAppIT" test
       
       # empaquetar!
-      - run: curl https://www.scala-sbt.org/sbt-rpm.repo
-      - run: sudo yum install sbt
       - run: sbt rpm:packageBin     
