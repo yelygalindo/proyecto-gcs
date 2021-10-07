@@ -61,15 +61,17 @@ jobs:
   repo_checkout:
     docker:
       # specify the version you desire here
-      - image: centos:centos7
+      - image: rasrules/centos7-pg11-scala:latest
 
     resource_class: xlarge
 
     working_directory: ~/repo
     steps:
-      - run: yum -y install epel-release
-      - run: yum -y install git
+      #- run: yum -y install epel-release
+      #- run: yum -y install git
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - save_cache:
           key: v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
           paths:
