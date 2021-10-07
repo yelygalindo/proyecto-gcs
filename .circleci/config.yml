@@ -71,8 +71,6 @@ jobs:
 
     working_directory: ~/repo
     steps:
-      #- run: yum -y install epel-release
-      #- run: yum -y install git
       - checkout
       - run: cat /dev/null | sbt compile
       - save_cache:
@@ -100,9 +98,6 @@ jobs:
       - checkout    
       - setup_remote_docker:
           docker_layer_caching: true    
-      #- restore_cache:
-      #    keys:
-      #      - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
       - run: sbt doc
       - run: sbt rpm:packageBin
       - save_cache:
@@ -126,9 +121,6 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      #- run: yum -y install epel-release
-      #- run: yum -y install yum-utils
-      #- run: yum -y install openssh-clients scp ssh
       - restore_cache:
           keys:
             - v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
