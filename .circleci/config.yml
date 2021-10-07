@@ -105,7 +105,9 @@ jobs:
       - restore_cache:
           keys:
             - v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
+      - run: mkdir -p ~/.ssh
       - run: ssh-keyscan $WEBSERVER > ~/.ssh/known_hosts
+          
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
