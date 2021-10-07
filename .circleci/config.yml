@@ -98,18 +98,13 @@ sbt-build: &sbt-build
     - checkout
     - setup_remote_docker:
         docker_layer_caching: true
-        version: 17.09.0-ce
+        #version: 17.09.0-ce
     - restore_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
     - add_ssh_keys:
         fingerprints:
           - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-    - run: |
-        cat /dev/null | sbt "$SBT_COMMAND"
-        if [ $SBT_COMMAND == " rpm:packageBin" ] ; then
-          ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
-          scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-        if
+    - run: cat /dev/null | sbt "$SBT_COMMAND"
     - save_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
         paths:
@@ -139,7 +134,7 @@ sbt-integration-test: &sbt-integration-test
     - checkout
     - setup_remote_docker:
         docker_layer_caching: true
-        version: 17.09.0-ce
+        #version: 17.09.0-ce
     - restore_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
     - run: sbt "project gcsAppIT" test
@@ -178,6 +173,7 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies--{{ checksum "build.sbt" }}
+      - run: sbt rpm:packageBin 
       - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
