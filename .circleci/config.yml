@@ -109,9 +109,8 @@ jobs:
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-      - run: |
-          scp gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
+      - run: scp ~/repo/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+      - run: ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
 
 workflows:
   version: 2
