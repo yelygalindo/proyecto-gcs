@@ -17,15 +17,14 @@ sbt-build: &sbt-build
     TERM: dumb
 
   steps:
-    - checkout
+    - restore_cache:
+          keys:
+            - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
     - setup_remote_docker:
         docker_layer_caching: true
         #version: 17.09.0-ce
     - restore_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
-    - add_ssh_keys:
-        fingerprints:
-          - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
     - run: cat /dev/null | sbt "$SBT_COMMAND"
     - save_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
@@ -53,7 +52,9 @@ sbt-integration-test: &sbt-integration-test
     TERM: dumb
 
   steps:
-    - checkout
+    - restore_cache:
+          keys:
+            - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
     - setup_remote_docker:
         docker_layer_caching: true
         #version: 17.09.0-ce
@@ -63,6 +64,19 @@ sbt-integration-test: &sbt-integration-test
 
 
 jobs:
+  repo_checkout:
+    docker:
+      # specify the version you desire here
+      - image: centos:centos7
+
+    resource_class: xlarge
+
+    working_directory: ~/repo
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+    
   build:
     docker:
       # specify the version you desire here
@@ -78,7 +92,9 @@ jobs:
       TERM: dumb
 
     steps:
-      - checkout
+      - restore_cache:
+          keys:
+            - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
       - run: sbt doc
       - run: sbt rpm:packageBin
       - save_cache:
@@ -121,9 +137,16 @@ workflows:
   version: 2
   ci:
     jobs:
+      - repo_checkout
       - build
+          requires:
+            - repo_checkout
       - test
+          requires:
+            - repo_checkout
       - integration-test
+          requires:
+            - repo_checkout      
       - deploy:
           requires:
             - build
