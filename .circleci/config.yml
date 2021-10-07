@@ -101,9 +101,6 @@ sbt-build: &sbt-build
         #version: 17.09.0-ce
     - restore_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
-    - add_ssh_keys:
-        fingerprints:
-          - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
     - run: cat /dev/null | sbt "$SBT_COMMAND"
     - save_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
