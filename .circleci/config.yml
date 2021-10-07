@@ -57,6 +57,9 @@ jobs:
       ### run test integracion!     
       - run: sbt "project gcsAppIT" test
       
+      # generar doc!
+      - run: sbt doc
+      
       # empaquetar!
       - run: sbt rpm:packageBin 
       
