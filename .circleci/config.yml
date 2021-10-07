@@ -63,13 +63,7 @@ sbt-integration-test: &sbt-integration-test
 
 
 jobs:
-  test:
-    <<: *sbt-build
-    environment:
-      SBT_COMMAND: " test:test"
-  integration-test:
-    <<: *sbt-integration-test
-  deploy:
+  build:
     docker:
       # specify the version you desire here
       - image: rasrules/centos7-pg11-scala:latest
@@ -85,44 +79,49 @@ jobs:
 
     steps:
       - checkout
-      # Download and cache dependencies
+      - run: sbt doc
+      - run: sbt rpm:packageBin
+      - save_cache:
+          key: v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo/gcs-app/target/rpm/RPMS/noarch
+
+  test:
+    <<: *sbt-build
+    environment:
+      SBT_COMMAND: " test:test"
+  integration-test:
+    <<: *sbt-integration-test
+  deploy:
+    docker:
+      # specify the version you desire here
+      - image: rasrules/centos7-pg11-scala:latest
+
+    resource_class: xlarge
+
+    working_directory: ~/repo
+
+    steps:
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
-      - run: sbt rpm:packageBin 
+            - v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
       - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
       - run: |
-          scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'    
-    
-    #docker:
-    #  - image: centos:centos7
-    #steps:
-    #  - add_ssh_keys:
-    #     fingerprints:
-    #       - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-    #  - run: |
-    #      ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
-    #      scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-    #      ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
-
+          scp gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
 
 workflows:
   version: 2
   ci:
     jobs:
+      - build
       - test
       - integration-test
       - deploy:
           requires:
+            - build
             - test
             - integration-test
