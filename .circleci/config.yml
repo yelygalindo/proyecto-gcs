@@ -123,7 +123,7 @@ jobs:
 
     steps:
       - run: yum -y install epel-release
-      - run: yum -y install yum-utils
+      # - run: yum -y install yum-utils
       - run: yum -y install openssh-clients scp ssh
       - restore_cache:
           keys:
