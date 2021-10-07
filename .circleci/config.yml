@@ -95,7 +95,7 @@ jobs:
   deploy:
     docker:
       # specify the version you desire here
-      - image: rasrules/centos7-pg11-scala:latest
+      - image: centos:centos7
 
     resource_class: xlarge
 
@@ -111,7 +111,7 @@ jobs:
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-      - run: scp ~/repo/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+      - run: scp ~/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
       - run: ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
 
 workflows:
