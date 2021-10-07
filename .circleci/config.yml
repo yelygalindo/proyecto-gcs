@@ -16,9 +16,7 @@ sbt-build: &sbt-build
     JVM_OPTS: -Xmx3200m
     TERM: dumb
 
-  steps:
-    - setup_remote_docker:
-          docker_layer_caching: true  
+  steps: 
     - restore_cache:
           keys:
             - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
@@ -31,6 +29,8 @@ sbt-build: &sbt-build
           - ~/.m2
           - ~/.ivy2
           - ~/.sbt
+    - setup_remote_docker:
+          docker_layer_caching: true           
 sbt-integration-test: &sbt-integration-test
   docker:
       # specify the version you desire here
@@ -74,12 +74,12 @@ jobs:
       #- run: yum -y install epel-release
       #- run: yum -y install git
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - save_cache:
           key: v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/repo
+      - setup_remote_docker:
+          docker_layer_caching: true
     
   build:
     docker:
@@ -145,9 +145,7 @@ workflows:
   ci:
     jobs:
       - repo_checkout
-      - build:
-          requires:
-            - repo_checkout
+      - build
       - test:
           requires:
             - repo_checkout
