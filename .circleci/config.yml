@@ -102,6 +102,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - run: yum -y install ssh-keyscan scp ssh
       - restore_cache:
           keys:
             - v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
