@@ -74,8 +74,7 @@ jobs:
     working_directory: ~/repo
     steps:
       - run: yum -y install epel-release
-      - run: yum -y install yum-utils
-      - run: yum -y install openssh-clients git ssh    
+      - run: yum -y install git
       - setup_remote_docker:
           docker_layer_caching: true
       - checkout
