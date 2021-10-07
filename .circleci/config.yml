@@ -81,17 +81,17 @@ version: 2
 
 sbt-build: &sbt-build
   docker:
-      # specify the version you desire here
-      - image: rasrules/centos7-pg11-scala:latest
+    # specify the version you desire here
+    - image: rasrules/centos7-pg11-scala:latest
 
-    resource_class: xlarge
+  resource_class: xlarge
 
-    working_directory: ~/repo
+  working_directory: ~/repo
 
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
+  environment:
+    # Customize the JVM maximum heap limit
+    JVM_OPTS: -Xmx3200m
+    TERM: dumb
 
   steps:
     - checkout
@@ -118,14 +118,13 @@ sbt-integration-test: &sbt-integration-test
           POSTGRESQL_DATABASE: 'gcs'
           PGDATA: /var/lib/postgresql/data
 
-    resource_class: xlarge
+  resource_class: xlarge
+  working_directory: ~/repo
 
-    working_directory: ~/repo
-
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
+  environment:
+    # Customize the JVM maximum heap limit
+    JVM_OPTS: -Xmx3200m
+    TERM: dumb
 
   steps:
     - checkout
@@ -149,19 +148,23 @@ jobs:
   integration-test:
     <<: *sbt-integration-test
   deploy:
-    - add_ssh_keys:
-       fingerprints:
-         - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-    - run: |
-        ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
-        scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-        ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
+    steps:
+      - add_ssh_keys:
+         fingerprints:
+           - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
+      - run: |
+          ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+          scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
 
 
 workflows:
   version: 2
   ci:
     jobs:
+      - build
+      - test
+      - integration-test
       - deploy:
           requires:
             - build
