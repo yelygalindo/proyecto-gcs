@@ -146,10 +146,6 @@ sbt-integration-test: &sbt-integration-test
 
 
 jobs:
-  build:
-    <<: *sbt-build
-    environment:
-      SBT_COMMAND: " rpm:packageBin"
   test:
     <<: *sbt-build
     environment:
@@ -158,26 +154,57 @@ jobs:
     <<: *sbt-integration-test
   deploy:
     docker:
-      - image: centos:centos7
+      # specify the version you desire here
+      - image: rasrules/centos7-pg11-scala:latest
+
+    resource_class: xlarge
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
     steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.sbt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies--{{ checksum "build.sbt" }}
+      - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
       - add_ssh_keys:
          fingerprints:
            - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
       - run: |
-          ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
           scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
+          ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'    
+    
+    #docker:
+    #  - image: centos:centos7
+    #steps:
+    #  - add_ssh_keys:
+    #     fingerprints:
+    #       - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
+    #  - run: |
+    #      ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+    #      scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+    #      ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
 
 
 workflows:
   version: 2
   ci:
     jobs:
-      - build
       - test
       - integration-test
       - deploy:
           requires:
-            - build
             - test
             - integration-test
