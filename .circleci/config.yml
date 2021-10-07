@@ -84,7 +84,7 @@ sbt-build: &sbt-build
       # specify the version you desire here
       - image: rasrules/centos7-pg11-scala:latest
 
-    resource_class: xlarge      
+    resource_class: xlarge
 
     working_directory: ~/repo
 
@@ -118,7 +118,7 @@ sbt-integration-test: &sbt-integration-test
           POSTGRESQL_DATABASE: 'gcs'
           PGDATA: /var/lib/postgresql/data
 
-    resource_class: xlarge      
+    resource_class: xlarge
 
     working_directory: ~/repo
 
@@ -141,11 +141,11 @@ jobs:
   build:
     <<: *sbt-build
     environment:
-      SBT_COMMAND: "; rpm:packageBin"    
+      SBT_COMMAND: "; rpm:packageBin"
   test:
     <<: *sbt-build
     environment:
-      SBT_COMMAND: "; compile; test; doc"  
+      SBT_COMMAND: "; compile; test; doc"
   integration-test:
     <<: *sbt-integration-test
   deploy:
@@ -167,4 +167,3 @@ workflows:
             - build
             - test
             - integration-test
-
