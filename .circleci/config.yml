@@ -75,9 +75,11 @@ jobs:
     steps:
       - run: yum -y install epel-release
       - run: yum -y install git
-      - setup_remote_docker:
-          docker_layer_caching: true
       - checkout
+      - save_cache:
+          key: v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/repo
     
   build:
     docker:
