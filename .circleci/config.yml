@@ -17,6 +17,8 @@ sbt-build: &sbt-build
     TERM: dumb
 
   steps:
+    - setup_remote_docker:
+          docker_layer_caching: true  
     - restore_cache:
           keys:
             - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
@@ -49,6 +51,8 @@ sbt-integration-test: &sbt-integration-test
     TERM: dumb
 
   steps:
+    - setup_remote_docker:
+          docker_layer_caching: true
     - restore_cache:
           keys:
             - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
@@ -92,9 +96,12 @@ jobs:
       TERM: dumb
 
     steps:
-      - restore_cache:
-          keys:
-            - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
+      - checkout    
+      - setup_remote_docker:
+          docker_layer_caching: true    
+      #- restore_cache:
+      #    keys:
+      #      - v1-repo-code{{ .Environment.CIRCLE_SHA1 }}
       - run: sbt doc
       - run: sbt rpm:packageBin
       - save_cache:
@@ -111,16 +118,16 @@ jobs:
   deploy:
     docker:
       # specify the version you desire here
-      - image: centos:centos7
+      - image: rasrules/centos7-pg11-scala:latest
 
     resource_class: xlarge
 
     working_directory: ~/repo
 
     steps:
-      - run: yum -y install epel-release
-      # - run: yum -y install yum-utils
-      - run: yum -y install openssh-clients scp ssh
+      #- run: yum -y install epel-release
+      #- run: yum -y install yum-utils
+      #- run: yum -y install openssh-clients scp ssh
       - restore_cache:
           keys:
             - v1-repo-rpm{{ .Environment.CIRCLE_SHA1 }}
