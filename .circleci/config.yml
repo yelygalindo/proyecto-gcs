@@ -101,7 +101,15 @@ sbt-build: &sbt-build
         version: 17.09.0-ce
     - restore_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
-    - run: sbt -Xms512m -Xmx2g -XX:+UseConcMarkSweepGC -XX:ReservedCodeCacheSize=256m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true -no-colors -batch "$SBT_COMMAND"
+    - add_ssh_keys:
+        fingerprints:
+          - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
+    - run: |
+        sbt -Xms512m -Xmx2g -XX:+UseConcMarkSweepGC -XX:ReservedCodeCacheSize=256m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true -no-colors -batch "$SBT_COMMAND"
+        if [ $SBT_COMMAND == "; rpm:packageBin" ] ; then
+          ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+          scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+        if
     - save_cache:
         key: sbt-deps-{{ checksum "build.sbt" }}
         paths:
@@ -149,6 +157,8 @@ jobs:
   integration-test:
     <<: *sbt-integration-test
   deploy:
+    docker:
+      - image: centos:centos7
     steps:
       - add_ssh_keys:
          fingerprints:
