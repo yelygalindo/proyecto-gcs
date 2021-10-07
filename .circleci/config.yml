@@ -53,6 +53,7 @@ jobs:
       ### run tests!
       - run: cat /dev/null | sbt test:test      
       
+      
       ### run test integracion!     
       - run: sbt "project gcsAppIT" test
       
