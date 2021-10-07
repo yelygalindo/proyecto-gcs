@@ -106,7 +106,7 @@ sbt-build: &sbt-build
           - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
     - run: |
         sbt "$SBT_COMMAND"
-        if [ $SBT_COMMAND == "; rpm:packageBin" ] ; then
+        if [ $SBT_COMMAND == " rpm:packageBin" ] ; then
           ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
           scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
         if
@@ -149,11 +149,11 @@ jobs:
   build:
     <<: *sbt-build
     environment:
-      SBT_COMMAND: "; rpm:packageBin"
+      SBT_COMMAND: " rpm:packageBin"
   test:
     <<: *sbt-build
     environment:
-      SBT_COMMAND: "; compile; test; doc"
+      SBT_COMMAND: " compile; test; doc"
   integration-test:
     <<: *sbt-integration-test
   deploy:
