@@ -2,62 +2,63 @@
 # See: https://circleci.com/docs/2.0/sample-config/
 version: 2
 
+#####################original##########################
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  build:
+##jobs:
+  ##build:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
+    ##docker:
       # specify the version you desire here
-      - image: rasrules/centos7-pg11-scala:latest
-      - image: centos/postgresql-10-centos7
-        environment:
-          POSTGRESQL_PASSWORD: 'gcs'
-          POSTGRESQL_USER: 'gcs'
-          POSTGRESQL_DATABASE: 'gcs'
-          PGDATA: /var/lib/postgresql/data
+    ##  - image: rasrules/centos7-pg11-scala:latest
+    ##  - image: centos/postgresql-10-centos7
+    ##    environment:
+    ##      POSTGRESQL_PASSWORD: 'gcs'
+    ##      POSTGRESQL_USER: 'gcs'
+    ##      POSTGRESQL_DATABASE: 'gcs'
+    ##      PGDATA: /var/lib/postgresql/data
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
-    resource_class: xlarge      
+    ##resource_class: xlarge      
 
-    working_directory: ~/repo
+    ##working_directory: ~/repo
 
-    environment:
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
+    ##environment:
+    ##  # Customize the JVM maximum heap limit
+    ##  JVM_OPTS: -Xmx3200m
+    ##  TERM: dumb
 
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
-    steps:
-      - checkout
+    ##steps:
+      ##- checkout
 
       # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+      ##- restore_cache:
+      ##    keys:
+      ##      - v1-dependencies-{{ checksum "build.sbt" }}
+      ##      # fallback to using the latest cache if no exact match is found
+      ##      - v1-dependencies-
 
       #- run: cat /dev/null | sbt test:compile
       
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies--{{ checksum "build.sbt" }}
+      ##- save_cache:
+      ##    paths:
+      ##      - ~/.m2
+      ##    key: v1-dependencies--{{ checksum "build.sbt" }}
        
       ### run tests!
-      - run: cat /dev/null | sbt test:test      
+      ##- run: cat /dev/null | sbt test:test      
       
       ### run test integracion!     
-      - run: sbt "project gcsAppIT" test
+      ##- run: sbt "project gcsAppIT" test
       
       # empaquetar!
-      - run: sbt rpm:packageBin 
+      ##- run: sbt rpm:packageBin 
       
       # copiar al destino!
       #- run:  ssh-keyscan 52.234.228.241 >> ~/.ssh/known_hosts
@@ -69,11 +70,101 @@ jobs:
       #- run: ssh azureuser@52.234.228.241 'echo "Skipped";'
        
       # deploy       
-      - run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
-      - add_ssh_keys:
-         fingerprints:
-           - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
-      - run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
-      - run: ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
+      ##- run: ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+      ##- add_ssh_keys:
+      ##   fingerprints:
+      ##     - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
+      ##- run: scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+      ##- run: ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
      
+#####################end original##########################
+
+sbt-build: &sbt-build
+  docker:
+      # specify the version you desire here
+      - image: rasrules/centos7-pg11-scala:latest
+
+    resource_class: xlarge      
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+  steps:
+    - checkout
+    - setup_remote_docker:
+        docker_layer_caching: true
+        version: 17.09.0-ce
+    - restore_cache:
+        key: sbt-deps-{{ checksum "build.sbt" }}
+    - run: sbt -Xms512m -Xmx2g -XX:+UseConcMarkSweepGC -XX:ReservedCodeCacheSize=256m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true -no-colors -batch "$SBT_COMMAND"
+    - save_cache:
+        key: sbt-deps-{{ checksum "build.sbt" }}
+        paths:
+          - ~/.m2
+          - ~/.ivy2
+          - ~/.sbt
+sbt-integration-test: &sbt-integration-test
+  docker:
+      # specify the version you desire here
+      - image: rasrules/centos7-pg11-scala:latest
+      - image: centos/postgresql-10-centos7
+        environment:
+          POSTGRESQL_PASSWORD: 'gcs'
+          POSTGRESQL_USER: 'gcs'
+          POSTGRESQL_DATABASE: 'gcs'
+          PGDATA: /var/lib/postgresql/data
+
+    resource_class: xlarge      
+
+    working_directory: ~/repo
+
+    environment:
+      # Customize the JVM maximum heap limit
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+  steps:
+    - checkout
+    - setup_remote_docker:
+        docker_layer_caching: true
+        version: 17.09.0-ce
+    - restore_cache:
+        key: sbt-deps-{{ checksum "build.sbt" }}
+    - run: sbt "project gcsAppIT" test
+
+
+jobs:
+  build:
+    <<: *sbt-build
+    environment:
+      SBT_COMMAND: "; rpm:packageBin"    
+  test:
+    <<: *sbt-build
+    environment:
+      SBT_COMMAND: "; compile; test; doc"  
+  integration-test:
+    <<: *sbt-integration-test
+  deploy:
+    - add_ssh_keys:
+       fingerprints:
+         - "f1:35:63:ed:e4:02:b0:bf:01:5f:91:ba:53:dc:59:3a"
+    - run: |
+        ssh-keyscan $WEBSERVER >> ~/.ssh/known_hosts
+        scp /root/repo/gcs-app/target/rpm/RPMS/noarch/gcs-app-2.8.x-1.noarch.rpm ${DEPLOY_USR}@${WEBSERVER}:/tmp
+        ssh ${DEPLOY_USR}@${WEBSERVER} 'sudo ./update.sh'
+
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - deploy:
+          requires:
+            - build
+            - test
+            - integration-test
 
